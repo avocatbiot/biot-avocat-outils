@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulateur — Droits d'enregistrement · Fonds de commerce</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --dark: #0d0f14;
+    --card: #13161d;
+    --border: #1e2330;
+    --blue: #3b82f6;
+    --blue-light: #60a5fa;
+    --gold: #c9a84c;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --green: #10b981;
+    --orange: #f59e0b;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .header .eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+  }
+
+  .input-wrap {
+    position: relative;
+  }
+
+  .input-wrap .unit {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 0.85rem;
+    pointer-events: none;
+  }
+
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 2.5rem 0.75rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  input:focus {
+    border-color: var(--blue);
+  }
+
+  .toggle-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .toggle-btn {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+
+  .toggle-btn:hover {
+    border-color: var(--blue);
+    color: var(--text);
+  }
+
+  .toggle-btn.active {
+    background: rgba(59,130,246,0.12);
+    border-color: var(--blue);
+    color: var(--blue-light);
+    font-weight: 500;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* RESULT */
+  .result-card {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(201,168,76,0.06) 100%);
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  .result-card.visible { display: block; }
+
+  .result-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .result-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+
+  .result-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .result-rate {
+    text-align: right;
+  }
+
+  .rate-badge {
+    display: inline-block;
+    background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--green);
+    border-radius: 20px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .tranches-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .tranches-table th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 400;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0 0 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tranches-table th:last-child,
+  .tranches-table td:last-child { text-align: right; }
+
+  .tranches-table td {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(30,35,48,0.5);
+    color: var(--text);
+  }
+
+  .tranches-table tr:last-child td { border-bottom: none; }
+
+  .tranche-rate {
+    display: inline-block;
+    background: rgba(59,130,246,0.1);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    color: var(--blue-light);
+    font-weight: 500;
+    font-size: 0.75rem;
+  }
+
+  .tranche-rate.zero {
+    background: rgba(107,114,128,0.1);
+    color: var(--muted);
+  }
+
+  .montant-td {
+    font-weight: 500;
+    color: #fff;
+  }
+
+  .montant-td.zero { color: var(--muted); }
+
+  .alert-box {
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    font-size: 0.8rem;
+    color: #fcd34d;
+    margin-top: 1rem;
+    display: none;
+  }
+
+  .alert-box.visible { display: block; }
+
+  .alert-box strong { display: block; margin-bottom: 0.2rem; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .footer-note a {
+    color: var(--blue-light);
+    text-decoration: none;
+  }
+
+  .cta-strip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+
+  .cta-strip p {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .cta-strip p strong {
+    display: block;
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .btn-cta {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s;
+  }
+
+  .btn-cta:hover { background: #2563eb; }
+
+  @media (max-width: 480px) {
+    .result-main { flex-direction: column; }
+    .result-rate { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="eyebrow">Biot Avocat · Outil pratique</div>
+    <h1>Droits d'enregistrement<br>Cession de fonds de commerce</h1>
+    <p>Estimation indicative · Barème 2024-2025 · Art. 719 CGI</p>
+  </div>
+
+  <!-- INPUTS -->
+  <div class="card">
+    <div class="card-title">Paramètres de la cession</div>
+
+    <div class="field">
+      <label>Prix de cession du fonds (hors stock de marchandises)</label>
+      <div class="input-wrap">
+        <input type="number" id="prix" placeholder="Ex : 250000" min="0" oninput="calculate()">
+        <span class="unit">€</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Valeur du stock de marchandises neuves (exonéré)</label>
+      <div class="input-wrap">
+        <input type="number" id="stock" placeholder="0" min="0" oninput="calculate()">
+        <span class="unit">€</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Acquéreur — profil</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" onclick="setAcquereur('standard', this)">Tiers acquéreur</button>
+        <button class="toggle-btn" onclick="setAcquereur('salarie', this)">Salarié CDI ≥ 2 ans</button>
+        <button class="toggle-btn" onclick="setAcquereur('famille', this)">Famille du cédant</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Zone géographique du fonds</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" onclick="setZone('standard', this)">Zone standard</button>
+        <button class="toggle-btn" onclick="setZone('zfu', this)">ZFU-TE / FRR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+    <div class="result-main">
+      <div>
+        <div class="result-label">Droits d'enregistrement estimés</div>
+        <div class="result-amount" id="totalDroits">—</div>
+      </div>
+      <div class="result-rate">
+        <div class="result-label">Taux effectif</div>
+        <div class="rate-badge" id="tauxEffectif">—</div>
+      </div>
+    </div>
+
+    <table class="tranches-table">
+      <thead>
+        <tr>
+          <th>Tranche</th>
+          <th>Taux</th>
+          <th>Base taxable</th>
+          <th>Droits</th>
+        </tr>
+      </thead>
+      <tbody id="tranchesBody"></tbody>
+    </table>
+
+    <div class="alert-box" id="alertAbattement">
+      <strong>✓ Abattement de 500 000 € applicable</strong>
+      Sous réserve que le cédant ait détenu le fonds plus de 2 ans et que le repreneur s'engage à poursuivre l'exploitation pendant 5 ans (art. 732 ter CGI).
+    </div>
+
+    <div class="alert-box" id="alertZfu" style="border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.06); color: #93c5fd;">
+      <strong>✓ Taux réduits ZFU-TE / FRR</strong>
+      Taux réduit à 1% sur la tranche 23 000 € – 107 000 €, sous engagement de maintien d'exploitation 5 ans.
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Estimation indicative, hors honoraires d'avocat et frais annexes.<br>
+    Le stock de marchandises neuves est exonéré de droits d'enregistrement.<br>
+    <strong style="color: var(--text);">Minimum de perception : 25 €</strong> · Source : art. 719, 720, 721 CGI
+  </div>
+
+  <div class="cta-strip">
+    <p>
+      <strong>Sécurisez votre acquisition</strong>
+      Audit juridique, rédaction de l'acte et accompagnement complet.
+    </p>
+    <a href="https://cal.eu/benoit-biot-6gciun/appel-decouverte" class="btn-cta" target="_blank">Prendre rendez-vous</a>
+  </div>
+
+</div>
+
+<script>
+  let acquereur = 'standard';
+  let zone = 'standard';
+
+  function setAcquereur(val, btn) {
+    acquereur = val;
+    document.querySelectorAll('.toggle-group')[0].querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    calculate();
+  }
+
+  function setZone(val, btn) {
+    zone = val;
+    document.querySelectorAll('.toggle-group')[1].querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    calculate();
+  }
+
+  function fmt(n) {
+    if (n === 0) return '0 €';
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  }
+
+  function calculate() {
+    const prix = parseFloat(document.getElementById('prix').value) || 0;
+    const stock = parseFloat(document.getElementById('stock').value) || 0;
+
+    if (prix <= 0) {
+      document.getElementById('resultCard').classList.remove('visible');
+      return;
+    }
+
+    // Abattement 500k pour salarié/famille
+    let abattement = 0;
+    if (acquereur === 'salarie' || acquereur === 'famille') {
+      abattement = 500000;
+    }
+
+    let base = Math.max(0, prix - abattement);
+
+    // Calcul par tranches
+    let tranches = [];
+    let total = 0;
+
+    // Tranche 1 : 0 → 23 000 : 0%
+    const t1max = 23000;
+    const t1base = Math.min(base, t1max);
+    tranches.push({ label: '0 € – 23 000 €', taux: 0, base: t1base, droits: 0 });
+
+    // Tranche 2 : 23 000 → 200 000
+    if (base > t1max) {
+      const t2max = 200000;
+      const t2base = Math.min(base, t2max) - t1max;
+
+      let taux2;
+      if (zone === 'zfu') {
+        // ZFU : 0% jusqu'à 107k, puis 3% au-delà
+        const zfuBorne = 107000;
+        const zfuBase = Math.min(base, zfuBorne) - t1max;
+        const zfuBase2 = Math.min(base, t2max) - zfuBorne;
+
+        if (zfuBase > 0) {
+          const d = zfuBase * 0.01;
+          tranches.push({ label: '23 001 € – 107 000 € (ZFU)', taux: 1, base: zfuBase, droits: d });
+          total += d;
+        }
+        if (zfuBase2 > 0) {
+          const d = zfuBase2 * 0.03;
+          tranches.push({ label: '107 001 € – 200 000 € (ZFU)', taux: 3, base: zfuBase2, droits: d });
+          total += d;
+        }
+      } else {
+        const d = t2base * 0.03;
+        tranches.push({ label: '23 001 € – 200 000 €', taux: 3, base: t2base, droits: d });
+        total += d;
+      }
+    }
+
+    // Tranche 3 : > 200 000 : 5%
+    if (base > 200000) {
+      const t3base = base - 200000;
+      const d = t3base * 0.05;
+      tranches.push({ label: 'Au-delà de 200 000 €', taux: 5, base: t3base, droits: d });
+      total += d;
+    }
+
+    // Minimum de perception
+    if (total > 0 && total < 25) total = 25;
+
+    // Taux effectif sur le prix total (sans abattement)
+    const tauxEff = prix > 0 ? (total / prix * 100).toFixed(2) : 0;
+
+    // Display
+    document.getElementById('totalDroits').textContent = fmt(Math.round(total));
+    document.getElementById('tauxEffectif').textContent = tauxEff + ' %';
+
+    const tbody = document.getElementById('tranchesBody');
+    tbody.innerHTML = '';
+    tranches.forEach(t => {
+      const tr = document.createElement('tr');
+      const rateClass = t.taux === 0 ? 'zero' : '';
+      const amtClass = t.droits === 0 ? 'zero' : '';
+      tr.innerHTML = `
+        <td>${t.label}</td>
+        <td><span class="tranche-rate ${rateClass}">${t.taux}%</span></td>
+        <td>${fmt(Math.round(t.base))}</td>
+        <td class="montant-td ${amtClass}">${fmt(Math.round(t.droits))}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Ligne total
+    const trTotal = document.createElement('tr');
+    trTotal.innerHTML = `
+      <td colspan="3" style="font-weight:500; padding-top:0.8rem; border-top: 1px solid var(--border); color: var(--text);">Total droits d'enregistrement</td>
+      <td class="montant-td" style="padding-top:0.8rem; border-top: 1px solid var(--border);">${fmt(Math.round(total))}</td>
+    `;
+    tbody.appendChild(trTotal);
+
+    // Alertes
+    const alertAb = document.getElementById('alertAbattement');
+    alertAb.classList.toggle('visible', acquereur !== 'standard');
+
+    const alertZfu = document.getElementById('alertZfu');
+    alertZfu.classList.toggle('visible', zone === 'zfu');
+
+    document.getElementById('resultCard').classList.add('visible');
+  }
+</script>
+</body>
+</html>
