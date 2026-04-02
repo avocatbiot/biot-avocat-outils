@@ -47,8 +47,8 @@ function compute({ type, prix, nbCed, nbTot }) {
     base = Math.max(0, prix - ab);
   }
   let droits = base * cfg.taux;
-  const minApplied = base > 0 && droits < 25;
-  if (base > 0 && droits < 25) droits = 25;
+  const minApplied = prix > 0 && droits < 25;
+  if (prix > 0 && droits < 25) droits = 25;
   return { cfg, prix, ab, base, droits, eff: prix > 0 ? droits / prix : 0, hasAb: type === "parts" && ab > 0, minApplied };
 }
 

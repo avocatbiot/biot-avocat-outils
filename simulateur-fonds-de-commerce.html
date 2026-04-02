@@ -45,8 +45,8 @@ function calc({ prix, marchandises, zfu, abat }) {
   if (ba > 107000) { const v = Math.min(ba, 200000) - 107000; const d = v * 0.03; total += d; tranches.push({ label: "107 001 € à 200 000 €", base: v, taux: 0.03, droits: d }); }
   if (ba > 200000) { const v = ba - 200000; const d = v * 0.05; total += d; tranches.push({ label: "Au-delà de 200 000 €", base: v, taux: 0.05, droits: d }); }
   // Minimum de perception 25€ dès qu'il y a une cession (art. 674 CGI)
-  const minApplied = ba > 0 && total < 25;
-  if (ba > 0 && total < 25) total = 25;
+  const minApplied = prix > 0 && total < 25;
+  if (prix > 0 && total < 25) total = 25;
   return { base, ab, ba, tranches, total, minApplied };
 }
 
