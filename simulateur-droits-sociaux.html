@@ -47,8 +47,8 @@ function compute({ type, prix, nbCed, nbTot }) {
     base = Math.max(0, prix - ab);
   }
   let droits = base * cfg.taux;
-  const minApplied = droits > 0 && droits < 25;
-  if (minApplied) droits = 25;
+  const minApplied = base > 0 && droits < 25;
+  if (base > 0 && droits < 25) droits = 25;
   return { cfg, prix, ab, base, droits, eff: prix > 0 ? droits / prix : 0, hasAb: type === "parts" && ab > 0, minApplied };
 }
 
@@ -185,7 +185,7 @@ function App() {
                   const a = Math.round((23000 * nbCed) / nbTot);
                   d = Math.max(0, prix - Math.min(a, prix)) * t.taux;
                 } else { d = prix * t.taux; }
-                if (d > 0 && d < 25) d = 25;
+                if (prix > 0 && d < 25) d = 25;
                 const act = t.id === type;
                 return (
                   <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: `1px solid ${C.bg}` }}>
@@ -202,7 +202,7 @@ function App() {
 
           <div style={{ marginTop: 20, padding: 16, borderRadius: 10, background: C.warnBg, border: `1px solid ${C.warnBorder}` }}>
             <p style={{ fontSize: 12, color: C.goldDark, lineHeight: 1.6 }}>
-              <strong>Avertissement :</strong> Cette simulation est fournie à titre indicatif et ne constitue pas un conseil juridique ou fiscal personnalisé. Le montant réel peut varier en fonction de votre situation (clause de garantie de passif, prix de cession vs valeur vénale, etc.).
+              <strong>Avertissement :</strong> Cette simulation est fournie à titre indicatif et ne constitue pas un conseil juridique ou fiscal personnalisé. Les résultats ne prennent pas en compte les honoraires d'avocat, les frais de greffe et les frais de publicité légale notamment. Le montant réel peut varier en fonction de votre situation (clause de garantie de passif, prix de cession vs valeur vénale, etc.).
               <br /><br /><strong>Me Benoît BIOT</strong> — Avocat au Barreau de Montpellier
             </p>
           </div>

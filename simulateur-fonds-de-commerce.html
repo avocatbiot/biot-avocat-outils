@@ -44,8 +44,10 @@ function calc({ prix, marchandises, zfu, abat }) {
   if (ba > 23000) { const v = Math.min(ba, 107000) - 23000; const d = v * t2; total += d; tranches.push({ label: "23 001 € à 107 000 €", base: v, taux: t2, droits: d, zfu }); }
   if (ba > 107000) { const v = Math.min(ba, 200000) - 107000; const d = v * 0.03; total += d; tranches.push({ label: "107 001 € à 200 000 €", base: v, taux: 0.03, droits: d }); }
   if (ba > 200000) { const v = ba - 200000; const d = v * 0.05; total += d; tranches.push({ label: "Au-delà de 200 000 €", base: v, taux: 0.05, droits: d }); }
-  if (total > 0 && total < 25) total = 25;
-  return { base, ab, ba, tranches, total, minApplied: total === 25 && ba > 0 && ba * 0.03 < 25 };
+  // Minimum de perception 25€ dès qu'il y a une cession (art. 674 CGI)
+  const minApplied = ba > 0 && total < 25;
+  if (ba > 0 && total < 25) total = 25;
+  return { base, ab, ba, tranches, total, minApplied };
 }
 
 function NumInput({ label, value, onChange, hint }) {
@@ -167,7 +169,7 @@ function App() {
 
           <div style={{ marginTop: 20, padding: 16, borderRadius: 10, background: C.warnBg, border: `1px solid ${C.warnBorder}` }}>
             <p style={{ fontSize: 12, color: C.goldDark, lineHeight: 1.6 }}>
-              <strong>Avertissement :</strong> Cette simulation est fournie à titre indicatif et ne constitue pas un conseil juridique ou fiscal personnalisé. Les résultats ne prennent pas en compte les émoluments notariaux ou les frais de publicité.
+              <strong>Avertissement :</strong> Cette simulation est fournie à titre indicatif et ne constitue pas un conseil juridique ou fiscal personnalisé. Les résultats ne prennent pas en compte les honoraires d'avocat, les frais de greffe et les frais de publicité légale notamment.
               <br /><br /><strong>Me Benoît BIOT</strong> — Avocat au Barreau de Montpellier
             </p>
           </div>
